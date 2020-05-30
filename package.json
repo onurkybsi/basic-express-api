@@ -1,0 +1,22 @@
+{
+  "name": "basic-express-api",
+  "version": "1.0.0",
+  "description": "My first Express.js api",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/onurkybsi/basic-express-api.git"
+  },
+  "author": "OnurKayabasi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/onurkybsi/basic-express-api/issues"
+  },
+  "homepage": "https://github.com/onurkybsi/basic-express-api#readme",
+  "dependencies": {
+    "faker": "^4.1.0"
+  }
+}
