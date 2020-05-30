@@ -13,4 +13,12 @@ router.route("").get(function (req, res, next) {
   });
 });
 
+router.route("/person").get(function (req, res, next) {
+  res.send(data);
+});
+
+router.route("/person/:id").get(function (req, res, next) {
+  res.send(data[req.params["id"]]);
+});
+
 const app = express().use("/api", router).listen(3000);
