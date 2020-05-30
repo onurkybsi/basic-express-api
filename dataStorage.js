@@ -7,7 +7,7 @@ faker.seed(100);
 for (let i = 1; i <= 500; i++) {
   let firstName = faker.name.firstName();
   let lastName = faker.name.lastName();
-  let birthDate = faker.date.past((1950 + i) % 2005);
+  let birthDate = faker.date.between("01/01/1970", "01/01/2020");
   let email = faker.internet.email(firstName, lastName);
 
   data.push({
