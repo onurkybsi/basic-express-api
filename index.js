@@ -1,25 +1,10 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const dataStorage = require("./dataStorage");
+const utilities = require("./utilities");
 
 let data = [];
 data = dataStorage();
-
-requestBodyExamine = (req, res, next, requiredKeys) => {
-  let keys = Object.keys(req.body);
-
-  if (keys.length !== requiredKeys.length) {
-    res.status(404).send("Soryy request body is not true!");
-  }
-
-  requiredKeys.forEach((key) => {
-    if (!keys.includes(key)) {
-      res.status(404).send(`Soryy ${key} can't find!`);
-    }
-  });
-
-  next();
-};
 
 const router = express.Router();
 router.use(bodyParser());
@@ -36,7 +21,7 @@ router
   .get(function(req, res, next) {
     res.send(data);
   })
-  .post((req, res, next) => requestBodyExamine(req, res, next, ["firstName", "lastName", "birthDate", "email"]))
+  .post((req, res, next) => utilities.requestBodyExamine(req, res, next, ["firstName", "lastName", "birthDate", "email"]))
   .post(function(req, res, next) {
     let newItem = req.body;
     newItem.id = data.length + 1;
