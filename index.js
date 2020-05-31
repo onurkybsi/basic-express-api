@@ -9,6 +9,7 @@ data = dataStorage();
 const router = express.Router();
 router.use(bodyParser());
 
+
 router.route("").get(function(req, res, next) {
   res.send({
     author: "Onur Kayabasi",
@@ -21,7 +22,29 @@ router
   .get(function(req, res, next) {
     res.send(data);
   })
-  .post((req, res, next) => utilities.requestBodyExamine(req, res, next, ["firstName", "lastName", "birthDate", "email"]))
+  .post((req, res, next) => {
+    let rules = {
+      firstName: {
+        required: true,
+        minLength: 3,
+        onlyLetter: true
+      },
+      lastName: {
+        required: true,
+        minLength: 3,
+        onlyLetter: true
+      },
+      birthDate: {
+        required: true,
+        date: true
+      },
+      email: {
+        required: true,
+        email: true
+      },
+    };
+    utilities.requestValidator(req, res, next, rules);
+  })
   .post(function(req, res, next) {
     let newItem = req.body;
     newItem.id = data.length + 1;
@@ -43,5 +66,6 @@ router.route("/person/:id").get(function(req, res, next) {
 }).all(function(req, res, next) {
   res.status(404).send("Unavailable request!");
 });
+
 
 const app = express().use("/api", router).listen(3000);
