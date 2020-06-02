@@ -2,22 +2,20 @@ exports.requestValidator = (req, res, next, rules) => {
   let requiredKeys = Object.keys(rules);
 
   let validationOfRequestBody = validateRequestBody(req.body, requiredKeys);
+  if (!validationOfRequestBody.isValid) {
+    res.status(404).send(validationOfRequestBody);
+  }
+
   let validationOfObject = validateObject(req.body, rules);
-
-  if (!validationOfRequestBody.isValid || !validationOfObject.isValid) {
-    let inCorrectValidation = validationOfRequestBody.isValid
-      ? validationOfRequestBody
-      : validationOfObject;
-
-    console.error(inCorrectValidation.message);
-    res.status(404).send(inCorrectValidation);
+  if (!validationOfObject.isValid) {
+    res.status(404).send(validationOfObject);
   }
 
   next();
 };
 
 validateRequestBody = (requestBody, requiredKeys) => {
-  let requestKeys = Object.keys(requestBody.body);
+  let requestKeys = Object.keys(requestBody);
 
   if (requestKeys.length !== requiredKeys.length) {
     return {
@@ -25,14 +23,20 @@ validateRequestBody = (requestBody, requiredKeys) => {
       message: "Sorry, request body is not true!",
     };
   }
-  requiredKeys.forEach((key) => {
-    if (!requestKeys.includes(key)) {
+
+  for (let key in requiredKeys) {
+    if (!requestKeys.includes(requiredKeys[key])) {
       return {
         isValid: false,
-        message: `Sorry ${key} can't find!`,
+        message: `Sorry ${requiredKeys[key]} can't find!`,
       };
     }
-  });
+  }
+
+  return {
+    isValid: true,
+    message: "Successful!",
+  };
 };
 
 validateObject = (object, rules) => {
@@ -66,6 +70,16 @@ validateObject = (object, rules) => {
         return {
           isValid: false,
           message: `Sorry, ${key} cannot contain numerical characters`,
+        };
+      }
+    }
+    if (rules[key].hasOwnProperty("phoneNumber")) {
+      let phone_regex = /((1\s|\B)?\(?[0-9]{3}[-\s)]\s?[0-9]{3}[-\s][0-9]{4}|[0-9]{10})/g;
+
+      if (!phone_regex.test(object[key])) {
+        return {
+          isValid: false,
+          message: `Sorry, ${key} have to be phone number like: '(123)456-7891 or 123-456-7891'`,
         };
       }
     }

@@ -37,18 +37,33 @@ router
         required: true,
         date: true,
       },
+      phoneNumber: {
+        required: true,
+        phoneNumber: true,
+      },
       email: {
         required: true,
         email: true,
+      },
+      address: {
+        required: true,
+        minLength: 20,
       },
     };
     utilities.requestValidator(req, res, next, rules);
   })
   .post(function (req, res, next) {
-    let newItem = req.body;
-    newItem.id = data.length + 1;
+    let newItem = {
+      id: data.length + 1,
+      ...req.body,
+    };
+    
     data.push(newItem);
-    res.send(newItem);
+    res.send({
+      isValid: true,
+      message: "Successful!",
+      newPerson: newItem,
+    });
   })
   .all(function (req, res, next) {
     res.status(404).send("Sorry can't find that!");
