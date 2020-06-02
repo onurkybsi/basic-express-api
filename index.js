@@ -57,13 +57,17 @@ router
       id: data.length + 1,
       ...req.body,
     };
-    
+
     data.push(newItem);
     res.send({
       isValid: true,
       message: "Successful!",
       newPerson: newItem,
     });
+  })
+  .delete(function (req, res, next) {
+    data = [];
+    res.send({ status: "Successful", message: "Persons cleared", data: data });
   })
   .all(function (req, res, next) {
     res.status(404).send("Sorry can't find that!");

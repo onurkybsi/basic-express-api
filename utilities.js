@@ -14,6 +14,7 @@ exports.requestValidator = (req, res, next, rules) => {
   next();
 };
 
+//#region private of requestValidator 
 validateRequestBody = (requestBody, requiredKeys) => {
   let requestKeys = Object.keys(requestBody);
 
@@ -109,3 +110,4 @@ validateObject = (object, rules) => {
     message: "Successful!",
   };
 };
+//#endregion
