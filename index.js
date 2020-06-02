@@ -9,8 +9,7 @@ data = dataStorage();
 const router = express.Router();
 router.use(bodyParser());
 
-
-router.route("").get(function(req, res, next) {
+router.route("").get(function (req, res, next) {
   res.send({
     author: "Onur Kayabasi",
     message: "Hello World!",
@@ -19,7 +18,7 @@ router.route("").get(function(req, res, next) {
 
 router
   .route("/person")
-  .get(function(req, res, next) {
+  .get(function (req, res, next) {
     res.send(data);
   })
   .post((req, res, next) => {
@@ -27,45 +26,47 @@ router
       firstName: {
         required: true,
         minLength: 3,
-        onlyLetter: true
+        onlyLetter: true,
       },
       lastName: {
         required: true,
         minLength: 3,
-        onlyLetter: true
+        onlyLetter: true,
       },
       birthDate: {
         required: true,
-        date: true
+        date: true,
       },
       email: {
         required: true,
-        email: true
+        email: true,
       },
     };
     utilities.requestValidator(req, res, next, rules);
   })
-  .post(function(req, res, next) {
+  .post(function (req, res, next) {
     let newItem = req.body;
     newItem.id = data.length + 1;
     data.push(newItem);
     res.send(newItem);
   })
-  .all(function(req, res, next) {
+  .all(function (req, res, next) {
     res.status(404).send("Sorry can't find that!");
   });
 
-router.route("/person/:id").get(function(req, res, next) {
-  let id = req.params["id"] - 1;
+router
+  .route("/person/:id")
+  .get(function (req, res, next) {
+    let id = req.params["id"] - 1;
 
-  if (data.filter(person => person["id"] === id + 1).length === 1) {
-    res.send(data[id]);
-  } else {
-    res.status(404).send("Sorry, the requested object was not found!");
-  }
-}).all(function(req, res, next) {
-  res.status(404).send("Unavailable request!");
-});
-
+    if (data.filter((person) => person["id"] === id + 1).length === 1) {
+      res.send(data[id]);
+    } else {
+      res.status(404).send("Sorry, the requested object was not found!");
+    }
+  })
+  .all(function (req, res, next) {
+    res.status(404).send("Unavailable request!");
+  });
 
 const app = express().use("/api", router).listen(3000);
