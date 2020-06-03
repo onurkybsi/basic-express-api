@@ -10,12 +10,13 @@ const router = express.Router();
 router.use(bodyParser());
 
 router.route("").get(function (req, res, next) {
-  res.send({
+  res.status(200).send({
     author: "Onur Kayabasi",
     message: "Hello World!",
   });
 });
 
+//#region /person
 router
   .route("/person")
   .get(function (req, res, next) {
@@ -59,7 +60,7 @@ router
     };
 
     data.push(newItem);
-    res.send({
+    res.status(201).send({
       isValid: true,
       message: "Successful!",
       newPerson: newItem,
@@ -67,12 +68,15 @@ router
   })
   .delete(function (req, res, next) {
     data = [];
-    res.send({ status: "Successful", message: "Persons cleared", data: data });
+    res.status(204).send({ status: "Successful", message: "Persons cleared", data: data });
   })
   .all(function (req, res, next) {
-    res.status(404).send("Sorry can't find that!");
+    res.status(400).send("Unavailable request!");
   });
+//#endregion
 
+
+//#region /person/:id
 router
   .route("/person/:id")
   .get(function (req, res, next) {
@@ -90,5 +94,6 @@ router
   .all(function (req, res, next) {
     res.status(400).send("Unavailable request!");
   });
+//#endregion
 
 const app = express().use("/api", router).listen(3000);

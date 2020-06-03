@@ -3,12 +3,12 @@ exports.requestValidator = (req, res, next, rules) => {
 
   let validationOfRequestBody = validateRequestBody(req.body, requiredKeys);
   if (!validationOfRequestBody.isValid) {
-    res.status(404).send(validationOfRequestBody);
+    res.status(400).send(validationOfRequestBody);
   }
 
   let validationOfObject = validateObject(req.body, rules);
   if (!validationOfObject.isValid) {
-    res.status(404).send(validationOfObject);
+    res.status(400).send(validationOfObject);
   }
 
   next();
