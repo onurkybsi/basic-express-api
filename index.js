@@ -78,6 +78,9 @@ router
   .get(function (req, res, next) {
     let id = req.params["id"] - 1;
 
+    if (Number.isNaN(id))
+      res.status(400).send("Sorry, the id value must be an integer!");
+
     if (data.filter((person) => person["id"] === id + 1).length === 1) {
       res.send(data[id]);
     } else {
@@ -85,7 +88,7 @@ router
     }
   })
   .all(function (req, res, next) {
-    res.status(404).send("Unavailable request!");
+    res.status(400).send("Unavailable request!");
   });
 
 const app = express().use("/api", router).listen(3000);
