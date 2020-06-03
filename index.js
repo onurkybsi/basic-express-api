@@ -9,12 +9,14 @@ data = dataStorage();
 const router = express.Router();
 router.use(bodyParser());
 
+//#region Hello point
 router.route("").get(function (req, res, next) {
   res.status(200).send({
     author: "Onur Kayabasi",
     message: "Hello World!",
   });
 });
+//#endregion
 
 //#region /person
 router
@@ -68,13 +70,14 @@ router
   })
   .delete(function (req, res, next) {
     data = [];
-    res.status(204).send({ status: "Successful", message: "Persons cleared", data: data });
+    res
+      .status(204)
+      .send({ status: "Successful", message: "Persons cleared", data: data });
   })
   .all(function (req, res, next) {
     res.status(400).send("Unavailable request!");
   });
 //#endregion
-
 
 //#region /person/:id
 router
@@ -95,5 +98,9 @@ router
     res.status(400).send("Unavailable request!");
   });
 //#endregion
+
+router.route("*").all(function (req, res, next) {
+  res.status(400).send("Unavailable request!");
+});
 
 const app = express().use("/api", router).listen(3000);
