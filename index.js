@@ -85,13 +85,27 @@ router
   .get(function (req, res, next) {
     let id = req.params["id"] - 1;
 
-    if (Number.isNaN(id))
-      res.status(400).send("Sorry, the id value must be an integer!");
-
-    if (data.filter((person) => person["id"] === id + 1).length === 1) {
-      res.send(data[id]);
+    let searchedObject = utilities.findObjectById(id, data);
+    if (searchedObject.isItFound) {
+      res.status(200).send(searchedObject.object);
     } else {
-      res.status(404).send("Sorry, the requested object was not found!");
+      res.status(404).send(searchedObject.message);
+    }
+  })
+  .delete(function (req, res, next) {
+    let id = req.params["id"] - 1;
+
+    let objectToDelete = utilities.findObjectById(id, data);
+    if (objectToDelete.isItFound) {
+      data.splice(id, 1);
+
+      res.status(200).send({
+        isItDeleted: true,
+        message: "The person was deleted",
+        data: data,
+      });
+    } else {
+      res.status(404).send(objectToDelete.message);
     }
   })
   .all(function (req, res, next) {
@@ -99,8 +113,10 @@ router
   });
 //#endregion
 
+//#region all other points
 router.route("*").all(function (req, res, next) {
   res.status(400).send("Unavailable request!");
 });
+//#endregion
 
 const app = express().use("/api", router).listen(3000);

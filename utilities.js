@@ -14,7 +14,7 @@ exports.requestValidator = (req, res, next, rules) => {
   next();
 };
 
-//#region private of requestValidator 
+//#region private of requestValidator
 validateRequestBody = (requestBody, requiredKeys) => {
   let requestKeys = Object.keys(requestBody);
 
@@ -111,3 +111,19 @@ validateObject = (object, rules) => {
   };
 };
 //#endregion
+
+exports.findObjectById = (id, dataStorage) => {
+  if (dataStorage.filter((person) => person["id"] === id + 1).length === 1) {
+    return {
+      isItFound: true,
+      object: dataStorage[id],
+      message: "The person was found!",
+    };
+  } else {
+    return {
+      isItFound: false,
+      object: null,
+      message: "Sorry, the person was not found!",
+    };
+  }
+};
