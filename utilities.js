@@ -1,7 +1,12 @@
 exports.requestValidator = (req, res, next, rules) => {
   let requiredKeys = Object.keys(rules);
 
-  let validationOfRequestBody = validateRequestBody(req.body, requiredKeys);
+  let validationOfRequestBody = validateRequestBody(
+    req.body,
+    requiredKeys,
+    req.method
+  );
+
   if (!validationOfRequestBody.isValid) {
     res.status(400).send(validationOfRequestBody);
   }
@@ -15,9 +20,25 @@ exports.requestValidator = (req, res, next, rules) => {
 };
 
 //#region private of requestValidator
-validateRequestBody = (requestBody, requiredKeys) => {
+validateRequestBody = (requestBody, requiredKeys, httpMethod) => {
   let requestKeys = Object.keys(requestBody);
+  let validationResult = {
+    isValid: true,
+    message: "Successful!",
+  };
 
+  if (httpMethod === "POST") {
+    validationResult = postRequestBodyValidate(requestKeys, requiredKeys);
+  }
+
+  if (httpMethod === "PUT") {
+    validationResult = putRequestBodyValidate(requestKeys, requiredKeys);
+  }
+
+  return validationResult;
+};
+
+postRequestBodyValidate = (requestKeys, requiredKeys) => {
   if (requestKeys.length !== requiredKeys.length) {
     return {
       isValid: false,
@@ -30,6 +51,29 @@ validateRequestBody = (requestBody, requiredKeys) => {
       return {
         isValid: false,
         message: `Sorry ${requiredKeys[key]} can't find!`,
+      };
+    }
+  }
+
+  return {
+    isValid: true,
+    message: "Successful!",
+  };
+};
+
+putRequestBodyValidate = (requestKeys, requiredKeys) => {
+  if (requestKeys.length === 0) {
+    return {
+      isValid: false,
+      message: "Sorry, no value has been entered to be updated!",
+    };
+  }
+
+  for (let key in requestKeys) {
+    if (!requiredKeys.some((requiredKey) => requiredKey === requestKeys[key])) {
+      return {
+        isValid: false,
+        message: `Sorry ${requestKeys[key]} is not available!`,
       };
     }
   }

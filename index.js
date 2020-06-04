@@ -92,6 +92,41 @@ router
       res.status(404).send(searchedObject.message);
     }
   })
+  .put(function (req, res, next) {
+    let rules = {
+      firstName: {
+        required: false,
+        minLength: 3,
+        onlyLetter: true,
+      },
+      lastName: {
+        required: false,
+        minLength: 3,
+        onlyLetter: true,
+      },
+      birthDate: {
+        required: false,
+        date: true,
+      },
+      phoneNumber: {
+        required: false,
+        phoneNumber: true,
+      },
+      email: {
+        required: false,
+        email: true,
+      },
+      address: {
+        required: false,
+        minLength: 20,
+      },
+    };
+
+    utilities.requestValidator(req, res, next, rules);
+  })
+  .put(function (req, res, next) {
+    res.status(404).send("Successful!");
+  })
   .delete(function (req, res, next) {
     let id = req.params["id"] - 1;
 
