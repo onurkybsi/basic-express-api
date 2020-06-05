@@ -1,17 +1,29 @@
 exports.requestValidator = (req, res, next, rules) => {
-  let requiredKeys = Object.keys(rules);
+  let rulesToBeApplied = Object.assign({}, rules);
+  let requiredKeys = Object.keys(rulesToBeApplied);
+  let isCompletelyValidation = req.method === "POST";
 
   let validationOfRequestBody = validateRequestBody(
     req.body,
     requiredKeys,
-    req.method
+    isCompletelyValidation
   );
 
   if (!validationOfRequestBody.isValid) {
     res.status(400).send(validationOfRequestBody);
   }
 
-  let validationOfObject = validateObject(req.body, rules);
+  if (!isCompletelyValidation) {
+    let requestKeys = Object.keys(req.body);
+
+    for (let key in requiredKeys) {
+      if (!requestKeys.some((requestKey) => requestKey === requiredKeys[key])) {
+        delete rulesToBeApplied[requiredKeys[key]];
+      }
+    }
+  }
+
+  let validationOfObject = validateObject(req.body, rulesToBeApplied);
   if (!validationOfObject.isValid) {
     res.status(400).send(validationOfObject);
   }
@@ -19,26 +31,22 @@ exports.requestValidator = (req, res, next, rules) => {
   next();
 };
 
-//#region private of requestValidator
-validateRequestBody = (requestBody, requiredKeys, httpMethod) => {
+//#region private methods of requestValidator
+validateRequestBody = (requestBody, requiredKeys, isCompletelyValidation) => {
   let requestKeys = Object.keys(requestBody);
   let validationResult = {
     isValid: true,
     message: "Successful!",
   };
 
-  if (httpMethod === "POST") {
-    validationResult = postRequestBodyValidate(requestKeys, requiredKeys);
-  }
-
-  if (httpMethod === "PUT") {
-    validationResult = putRequestBodyValidate(requestKeys, requiredKeys);
-  }
+  validationResult = isCompletelyValidation
+    ? completelyValidation(requestKeys, requiredKeys)
+    : partialValidation(requestKeys, requiredKeys);
 
   return validationResult;
 };
 
-postRequestBodyValidate = (requestKeys, requiredKeys) => {
+completelyValidation = (requestKeys, requiredKeys) => {
   if (requestKeys.length !== requiredKeys.length) {
     return {
       isValid: false,
@@ -61,7 +69,7 @@ postRequestBodyValidate = (requestKeys, requiredKeys) => {
   };
 };
 
-putRequestBodyValidate = (requestKeys, requiredKeys) => {
+partialValidation = (requestKeys, requiredKeys) => {
   if (requestKeys.length === 0) {
     return {
       isValid: false,
@@ -154,6 +162,7 @@ validateObject = (object, rules) => {
     message: "Successful!",
   };
 };
+
 //#endregion
 
 exports.findObjectById = (id, dataStorage) => {
