@@ -1,10 +1,33 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const dataStorage = require("./dataStorage");
+const data = require("./dataStorage");
 const utilities = require("./utilities");
 
-let data = [];
-data = dataStorage();
+let dataStorage = [];
+dataStorage = data();
+
+updataDataStorage = (id, newValues) => {
+  let toBeUpdated = utilities.findObjectById(id, dataStorage);
+  let toBeUpdatedKeys = Object.keys(newValues);
+
+  if (toBeUpdated.isItFound) {
+    for (const prop in toBeUpdated.object) {
+      if (toBeUpdatedKeys.some((toBeUpdatedKey) => toBeUpdatedKey === prop)) {
+        toBeUpdated.object[prop] = newValues[prop];
+      }
+    }
+
+    return {
+      isSuccessful: true,
+      object: toBeUpdated.object,
+    };
+  }
+
+  return {
+    isSuccessful: false,
+    object: null,
+  };
+};
 
 const router = express.Router();
 router.use(bodyParser());
@@ -22,7 +45,7 @@ router.route("").get(function (req, res, next) {
 router
   .route("/person")
   .get(function (req, res, next) {
-    res.send(data);
+    res.send(dataStorage);
   })
   .post((req, res, next) => {
     let rules = {
@@ -57,11 +80,11 @@ router
   })
   .post(function (req, res, next) {
     let newItem = {
-      id: data.length + 1,
+      id: dataStorage.length + 1,
       ...req.body,
     };
 
-    data.push(newItem);
+    dataStorage.push(newItem);
     res.status(201).send({
       isValid: true,
       message: "Successful!",
@@ -69,10 +92,12 @@ router
     });
   })
   .delete(function (req, res, next) {
-    data = [];
-    res
-      .status(204)
-      .send({ status: "Successful", message: "Persons cleared", data: data });
+    dataStorage = [];
+    res.status(204).send({
+      status: "Successful",
+      message: "Persons cleared",
+      dataStorage: dataStorage,
+    });
   })
   .all(function (req, res, next) {
     res.status(400).send("Unavailable request!");
@@ -85,7 +110,7 @@ router
   .get(function (req, res, next) {
     let id = req.params["id"] - 1;
 
-    let searchedObject = utilities.findObjectById(id, data);
+    let searchedObject = utilities.findObjectById(id, dataStorage);
     if (searchedObject.isItFound) {
       res.status(200).send(searchedObject.object);
     } else {
@@ -125,19 +150,34 @@ router
     utilities.requestValidator(req, res, next, rules);
   })
   .put(function (req, res, next) {
-    res.status(404).send("Successful!");
+    let id = req.params["id"] - 1;
+
+    let updatedData = updataDataStorage(id, req.body);
+    if (updatedData.isSuccessful) {
+      res.status(200).send({
+        isSuccesful: updatedData.isSuccessful,
+        message: "The person updated!",
+        object: updatedData.object,
+      });
+    } else {
+      res.status(404).send({
+        isSuccessful: false,
+        message: "Failed to update the person!",
+        object: null,
+      });
+    }
   })
   .delete(function (req, res, next) {
     let id = req.params["id"] - 1;
 
-    let objectToDelete = utilities.findObjectById(id, data);
+    let objectToDelete = utilities.findObjectById(id, dataStorage);
     if (objectToDelete.isItFound) {
-      data.splice(id, 1);
+      dataStorage.splice(id, 1);
 
       res.status(200).send({
         isItDeleted: true,
         message: "The person was deleted",
-        data: data,
+        dataStorage: dataStorage,
       });
     } else {
       res.status(404).send(objectToDelete.message);
